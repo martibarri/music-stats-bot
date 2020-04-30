@@ -1,0 +1,6 @@
+aiogram
+beautifulsoup4
+requests
+lxml
+bs4
+python-dotenv
