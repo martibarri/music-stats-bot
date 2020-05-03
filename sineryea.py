@@ -23,14 +23,14 @@ if LOGGING_FILE:
         level=logging.INFO,
         filename='sineryea.log',
         filemode='a',
-        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-        datefmt='%H:%M:%S'
+        format='%(asctime)s.%(msecs)03d\t%(levelname)s\t%(name)s\t%(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
 else:
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-        datefmt='%H:%M:%S'
+        format='%(asctime)s.%(msecs)03d\t%(levelname)s\t%(name)s\t%(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
 
 
