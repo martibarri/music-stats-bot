@@ -47,7 +47,7 @@ def send_message(msg):
     requests.get(f"https://api.telegram.org/bot{API_TOKEN}/sendMessage?chat_id={CHATID}&text={parsedmsg}")
 
 
-@dp.message_handler(regexp='(^insta)')
+@dp.message_handler(regexp='(insta)')
 async def info(message: types.Message):
     followers = get_followers_insta('sinergiareggae')
     msg = f"Tenim {followers} followers a Instragram 😊"
@@ -55,7 +55,7 @@ async def info(message: types.Message):
     await message.answer(msg)
 
 
-@dp.message_handler(regexp='(^twitter)')
+@dp.message_handler(regexp='(twitter)')
 async def info(message: types.Message):
     followers = get_followers_twitter(ACCESS_TOKEN, 'sinergiareggae')
     msg = f"Tenim {followers} followers a Twitter 😊"
@@ -63,7 +63,7 @@ async def info(message: types.Message):
     await message.answer(msg)
 
 
-@dp.message_handler(regexp='(^face)')
+@dp.message_handler(regexp='(face)')
 async def info(message: types.Message):
     followers = get_followers_facebook('sinergiareggae')
     msg = f"Tenim {followers} followers a Facebook 😊"
