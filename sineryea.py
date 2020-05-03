@@ -4,6 +4,7 @@ import urllib
 
 
 from os import getenv
+from pathlib import Path
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, executor, types
 
@@ -15,13 +16,15 @@ load_dotenv()
 API_TOKEN = getenv('API_TOKEN')
 CHATID = getenv('CHATID')
 ACCESS_TOKEN = getenv('ACCESS_TOKEN')
-LOGGING_FILE = bool(getenv('LOGGING_FILE') == 'True')
+LOGGING_PATH = getenv('LOGGING_PATH', 'logs')
+LOGGING_FILE = getenv('LOGGING_FILE')
 
 # Configure logging
 if LOGGING_FILE:
+    Path(LOGGING_PATH).mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         level=logging.INFO,
-        filename='sineryea.log',
+        filename= Path(LOGGING_PATH) / Path(LOGGING_FILE),
         filemode='a',
         format='%(asctime)s.%(msecs)03d\t%(levelname)s\t%(name)s\t%(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
