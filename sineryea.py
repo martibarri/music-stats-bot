@@ -1,8 +1,6 @@
 import logging
-import bs4
 import requests
 import urllib
-import json
 
 
 from os import getenv
@@ -56,7 +54,7 @@ async def info(message: types.Message):
 
 @dp.message_handler(regexp='(^twitter)')
 async def info(message: types.Message):
-    followers = get_followers_twitter('sinergiareggae')
+    followers = get_followers_twitter(ACCESS_TOKEN, 'sinergiareggae')
     msg = f"Tenim {followers} followers a Twitter 😊"
     logging.info(msg)
     await message.answer(msg)
