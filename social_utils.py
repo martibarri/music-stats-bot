@@ -15,9 +15,9 @@ def get_followers_twitter(ACCESS_TOKEN, account_name):
 def get_followers_insta(account_name):
     html = requests.get(f'https://www.instagram.com/{account_name}/')
     soup = BeautifulSoup(html.text, 'html.parser')
-    data = soup.find_all('meta', attrs={'property':'og:description'})
+    data = soup.find_all('meta', attrs={'property': 'og:description'})
     text = data[0].get('content').split()
-    user = f'{text[-3]} {text[-2]} {text[-1]}'
+    # user = f'{text[-3]} {text[-2]} {text[-1]}'
     followers = text[0]
     if followers[-1] == 'K':
         followers = int(float(followers[:-1].encode('UTF-8')) * 1000)
@@ -34,7 +34,7 @@ def get_followers_insta(account_name):
 def get_followers_facebook(account_name):
     html = requests.get(f'https://www.facebook.com/{account_name}/')
     soup = BeautifulSoup(html.text, 'html.parser')
-    data = soup.find_all('meta', attrs={'name':'description'})
+    data = soup.find_all('meta', attrs={'name': 'description'})
     text = data[0].get('content').split()
     followers = text[2]
     return followers
