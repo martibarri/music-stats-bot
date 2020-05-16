@@ -38,3 +38,20 @@ def get_followers_facebook(account_name):
     text = data[0].get('content').split()
     followers = text[2]
     return followers
+
+
+def get_followers_spotify(artist_id='6i0i8gXIR3RQRnfWvRWrPa'):
+    html = requests.get(f'https://open.spotify.com/follow/1?uri=spotify:artist:{artist_id}&show-count=1')
+    soup = BeautifulSoup(html.text, 'html.parser')
+    data = soup.find_all('div', attrs={'class': 'count-num'})
+    followers = data[0].getText()
+    new_followers = data[1].getText()
+    return followers, new_followers
+
+
+def get_followers_youtube(YOUR_API_KEY, channel_id='UCsR3pSI6iRNlxyFkqmJ1tGg'):
+    url = f'https://www.googleapis.com/youtube/v3/channels?part=statistics&id={channel_id}&key={YOUR_API_KEY}'
+    response = requests.get(url)
+    resp_json = json.loads(response.text)
+    subscribers = resp_json['items'][0]['statistics']['subscriberCount']
+    return subscribers
