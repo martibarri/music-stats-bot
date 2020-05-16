@@ -6,6 +6,7 @@ from os import getenv
 from pathlib import Path
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, executor, types
+from aiogram.utils.markdown import hbold
 from social_utils import get_followers_twitter, get_followers_insta, get_followers_facebook, get_followers_spotify, get_followers_youtube
 from spotify_utils import search_spotify, formatted_playlist, pretty_playlist
 
@@ -47,44 +48,21 @@ def send_message(msg):
     requests.get(f"https://api.telegram.org/bot{API_TOKEN}/sendMessage?chat_id={CHATID}&text={parsedmsg}")
 
 
-@dp.message_handler(regexp='(insta)')
-async def info_insta(message: types.Message):
-    followers = get_followers_insta('sinergiareggae')
-    msg = f"Tenim {followers} followers a Instragram 😊"
-    logging.info(msg)
-    await message.answer(msg)
-
-
-@dp.message_handler(regexp='(twitter)')
-async def info_twitter(message: types.Message):
-    followers = get_followers_twitter(ACCESS_TOKEN, 'sinergiareggae')
-    msg = f"Tenim {followers} followers a Twitter 😊"
-    logging.info(msg)
-    await message.answer(msg)
-
-
-@dp.message_handler(regexp='(face)')
-async def info_face(message: types.Message):
-    followers = get_followers_facebook('sinergiareggae')
-    msg = f"Tenim {followers} followers a Facebook 😊"
-    logging.info(msg)
-    await message.answer(msg)
-
-
-@dp.message_handler(regexp='(xarx|social|xs|seguidor|follow|subscri)')
+@dp.message_handler(regexp='(xarx|social|xs|seguidor|follow|subscri|info|stats)')
 async def info_xxss(message: types.Message):
     fb = get_followers_facebook('sinergiareggae')
     insta = get_followers_insta('sinergiareggae')
     tw = get_followers_twitter(ACCESS_TOKEN, 'sinergiareggae')
     sp, nsp = get_followers_spotify()
     yt = get_followers_youtube(YOUR_API_KEY)
-    msg = f"Facebook: {fb}" + "\n"
-    msg += f"Instagram: {insta}" + "\n"
-    msg += f"Twitter: {tw}" + "\n"
-    msg += f"Spotify: {sp} {nsp}" + "\n"
-    msg += f"Youtube: {yt}"
+    msg = "🕸 " + hbold("Sinergia stats") + " 🕸\n"
+    msg += f"Facebook: {hbold(fb)}" + "\n"
+    msg += f"Instagram: {hbold(insta)}" + "\n"
+    msg += f"Twitter: {hbold(tw)}" + "\n"
+    msg += f"Spotify: {hbold(sp)} ({nsp})" + "\n"
+    msg += f"Youtube: {hbold(yt)}"
     logging.info(msg)
-    await message.answer(msg)
+    await message.answer(msg, parse_mode='html')
 
 
 @dp.message_handler(commands=['playlist'])
