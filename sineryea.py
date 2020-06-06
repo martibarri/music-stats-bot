@@ -3,6 +3,7 @@ import requests
 import urllib
 
 from os import getenv
+from datetime import datetime, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, executor, types
@@ -43,24 +44,42 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
 
+MY_DB = {
+    'last_date': None,
+    'fb': None,
+    'insta': None,
+    'tw': None,
+    'sp': None,
+    'yt': None,
+}
+
+
 def send_message(msg):
     parsedmsg = urllib.parse.quote_plus(msg)
     requests.get(f"https://api.telegram.org/bot{API_TOKEN}/sendMessage?chat_id={CHATID}&text={parsedmsg}")
 
 
-@dp.message_handler(regexp='(xarx|social|xs|seguidor|follow|subscri|info|stats)')
+@dp.message_handler(regexp='(xarx|social|xs|seguidor|follow|subscri|informaci|stats)')
 async def info_xxss(message: types.Message):
-    fb = get_followers_facebook('sinergiareggae')
-    insta = get_followers_insta('sinergiareggae')
-    tw = get_followers_twitter(ACCESS_TOKEN, 'sinergiareggae')
-    sp, nsp = get_followers_spotify()
-    yt = get_followers_youtube(YOUR_API_KEY)
-    msg = "🕸 " + hbold("Sinergia stats") + " 🕸\n"
-    msg += f"Facebook: {hbold(fb)}" + "\n"
-    msg += f"Instagram: {hbold(insta)}" + "\n"
-    msg += f"Twitter: {hbold(tw)}" + "\n"
-    msg += f"Spotify: {hbold(sp)} ({nsp})" + "\n"
-    msg += f"Youtube: {hbold(yt)}"
+    global MY_DB
+    now = datetime.utcnow()
+    # First scan or rescan + update values
+    if (not MY_DB['last_date']) or (now > MY_DB['last_date'] + timedelta(hours=12)):
+        # first scan
+        MY_DB['fb'] = get_followers_facebook('sinergiareggae')
+        MY_DB['insta'] = get_followers_insta('sinergiareggae')
+        MY_DB['tw'] = get_followers_twitter(ACCESS_TOKEN, 'sinergiareggae')
+        MY_DB['sp'] = get_followers_spotify()
+        MY_DB['yt'] = get_followers_youtube(YOUR_API_KEY)
+        MY_DB['last_date'] = now
+    # Print message
+    msg = f"🕸 {hbold('Sinergia stats')} 🕸"
+    msg += f"\nFacebook: {hbold(MY_DB['fb'])}" if MY_DB['fb'] else ''
+    msg += f"\nInstagram: {hbold(MY_DB['insta'])}" if MY_DB['insta'] else ''
+    msg += f"\nTwitter: {hbold(MY_DB['tw'])}" if MY_DB['tw'] else ''
+    msg += f"\nSpotify: {hbold(MY_DB['sp'])}" if MY_DB['sp'] else ''
+    msg += f"\nYoutube: {hbold(MY_DB['yt'])}" if MY_DB['yt'] else ''
+    msg += f"\nUpdated: {MY_DB['last_date'].strftime('%Y-%m-%d %H:%M:%S')}" if MY_DB['last_date'] else ''
     logging.info(msg)
     await message.answer(msg, parse_mode='html')
 
