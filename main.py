@@ -55,6 +55,7 @@ accounts = {
     'youtube': 'UCsR3pSI6iRNlxyFkqmJ1tGg',
 }
 
+SOCIAL_UPDATE_TIME = 12  # in hours
 
 MY_DB = {
     'last_date': None,
@@ -89,7 +90,7 @@ async def info_xxss(message: types.Message, allowed):
         global MY_DB
         now = datetime.utcnow()
         # First scan or rescan + update values
-        if (not MY_DB['last_date']) or (now > MY_DB['last_date'] + timedelta(hours=12)):
+        if (not MY_DB['last_date']) or (now > MY_DB['last_date'] + timedelta(hours=SOCIAL_UPDATE_TIME)):
             # first scan
             MY_DB['facebook'] = get_followers_facebook(accounts['facebook'])
             MY_DB['instagram'] = get_followers_instagram(accounts['instagram'])
