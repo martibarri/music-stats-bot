@@ -20,7 +20,7 @@ API_TOKEN = getenv('API_TOKEN')  # Telegram
 MY_CHATID = getenv('MY_CHATID')  # Telegram
 ACCESS_TOKEN = getenv('ACCESS_TOKEN')  # Twitter
 YOUR_API_KEY = getenv('YOUR_API_KEY')  # Youtube
-WHITELISTED_CHATIDS = list(map(int, getenv('WHITELISTED_CHATIDS').split(',')))  # Telegram
+ALLOW_LIST_CHATIDS = list(map(int, getenv('ALLOW_LIST_CHATIDS').split(',')))  # Telegram
 
 # Configure logging
 if LOGGING_FILE:
@@ -71,7 +71,7 @@ def restricted(func):
     def func_wrapper(f):
         logging.info(f)
         chat_id = f['chat']['id']
-        if chat_id in WHITELISTED_CHATIDS:
+        if chat_id in ALLOW_LIST_CHATIDS:
             return func(f, True)
         else:
             return func(f, False)

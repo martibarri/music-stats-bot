@@ -28,9 +28,9 @@ Telegram bot of my music group
 
 # Functionalities
 
-## Whitelist usage
+## Allowlist usage
 
-`WHITELISTED_CHATIDS` is a comma-separated list of ChatIDs that are allowed to use the bot.
+`ALLOW_LIST_CHATIDS` is a comma-separated list of ChatIDs that are allowed to use the bot.
 
 ## Restricted usage notification
 
