@@ -8,7 +8,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.utils.markdown import hbold
-from social_utils import get_followers_twitter, get_followers_insta, get_followers_facebook, get_followers_spotify, get_followers_youtube
+from social_utils import get_followers_twitter, get_followers_instagram, get_followers_facebook, get_followers_spotify, get_followers_youtube
 from spotify_utils import search_spotify, formatted_playlist, pretty_playlist
 
 
@@ -45,13 +45,24 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
 
+# Set the name of public accounts
+accounts = {
+    'music_group_name': 'Sinergia',
+    'facebook': 'sinergiareggae',
+    'instagram': 'sinergiareggae',
+    'twitter': 'sinergiareggae',
+    'spotify': '6i0i8gXIR3RQRnfWvRWrPa',
+    'youtube': 'UCsR3pSI6iRNlxyFkqmJ1tGg',
+}
+
+
 MY_DB = {
     'last_date': None,
-    'fb': None,
-    'insta': None,
-    'tw': None,
-    'sp': None,
-    'yt': None,
+    'facebook': None,
+    'instagram': None,
+    'twitter': None,
+    'spotify': None,
+    'youtube': None,
 }
 
 
@@ -80,24 +91,24 @@ async def info_xxss(message: types.Message, allowed):
         # First scan or rescan + update values
         if (not MY_DB['last_date']) or (now > MY_DB['last_date'] + timedelta(hours=12)):
             # first scan
-            MY_DB['fb'] = get_followers_facebook('sinergiareggae')
-            MY_DB['insta'] = get_followers_insta('sinergiareggae')
-            MY_DB['tw'] = get_followers_twitter(ACCESS_TOKEN, 'sinergiareggae')
-            MY_DB['sp'] = get_followers_spotify()
-            MY_DB['yt'] = get_followers_youtube(YOUR_API_KEY)
+            MY_DB['facebook'] = get_followers_facebook(accounts['facebook'])
+            MY_DB['instagram'] = get_followers_instagram(accounts['instagram'])
+            MY_DB['twitter'] = get_followers_twitter(ACCESS_TOKEN, accounts['twitter'])
+            MY_DB['spotify'] = get_followers_spotify(accounts['spotify'])
+            MY_DB['youtube'] = get_followers_youtube(YOUR_API_KEY, accounts['youtube'])
             MY_DB['last_date'] = now
         # Print message
-        msg = f"🕸 {hbold('Sinergia stats')} 🕸"
-        msg += f"\nFacebook: {hbold(MY_DB['fb'])}" if MY_DB['fb'] else ''
-        msg += f"\nInstagram: {hbold(MY_DB['insta'])}" if MY_DB['insta'] else ''
-        msg += f"\nTwitter: {hbold(MY_DB['tw'])}" if MY_DB['tw'] else ''
-        msg += f"\nSpotify: {hbold(MY_DB['sp'])}" if MY_DB['sp'] else ''
-        msg += f"\nYoutube: {hbold(MY_DB['yt'])}" if MY_DB['yt'] else ''
+        msg = f"🕸 {hbold(accounts['music_group_name'] + ' stats')} 🕸"
+        msg += f"\nFacebook: {hbold(MY_DB['facebook'])}" if MY_DB['facebook'] else ''
+        msg += f"\nInstagram: {hbold(MY_DB['instagram'])}" if MY_DB['instagram'] else ''
+        msg += f"\nTwitter: {hbold(MY_DB['twitter'])}" if MY_DB['twitter'] else ''
+        msg += f"\nSpotify: {hbold(MY_DB['spotify'])}" if MY_DB['spotify'] else ''
+        msg += f"\nYoutube: {hbold(MY_DB['youtube'])}" if MY_DB['youtube'] else ''
         msg += f"\nUpdated: {MY_DB['last_date'].strftime('%Y-%m-%d %H:%M:%S')}" if MY_DB['last_date'] else ''
         logging.info(msg)
         await message.answer(msg, parse_mode='html')
     else:
-        logging.warning(f'NOT ALLOWED')
+        logging.warning('NOT ALLOWED')
         send_message(f'NOT ALLOWED: {message}')
 
 
@@ -112,7 +123,7 @@ async def search_playlist(message: types.Message, allowed):
         if arguments:
             query = arguments
         else:
-            await message.answer(f'usage: /playlist TEXT TO SEARCH')
+            await message.answer('usage: /playlist TEXT TO SEARCH')
             return
 
         ##########################
@@ -140,7 +151,7 @@ async def search_playlist(message: types.Message, allowed):
         logging.info(search_result)
         await message.answer(search_result)
     else:
-        logging.warning(f'NOT ALLOWED')
+        logging.warning('NOT ALLOWED')
         send_message(f'NOT ALLOWED: {message}')
 
 

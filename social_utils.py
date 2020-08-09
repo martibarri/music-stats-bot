@@ -15,7 +15,7 @@ def get_followers_twitter(ACCESS_TOKEN, account_name):
         return None
 
 
-def get_followers_insta(account_name):
+def get_followers_instagram(account_name):
     try:
         html = requests.get(f'https://www.instagram.com/{account_name}/')
         soup = BeautifulSoup(html.text, 'html.parser')
@@ -49,7 +49,7 @@ def get_followers_facebook(account_name):
         return None
 
 
-def get_followers_spotify(artist_id='6i0i8gXIR3RQRnfWvRWrPa'):
+def get_followers_spotify(artist_id):
     try:
         html = requests.get(f'https://open.spotify.com/follow/1?uri=spotify:artist:{artist_id}&show-count=1')
         soup = BeautifulSoup(html.text, 'html.parser')
@@ -61,7 +61,7 @@ def get_followers_spotify(artist_id='6i0i8gXIR3RQRnfWvRWrPa'):
         return None
 
 
-def get_followers_youtube(YOUR_API_KEY, channel_id='UCsR3pSI6iRNlxyFkqmJ1tGg'):
+def get_followers_youtube(YOUR_API_KEY, channel_id):
     try:
         url = f'https://www.googleapis.com/youtube/v3/channels?part=statistics&id={channel_id}&key={YOUR_API_KEY}'
         response = requests.get(url)
