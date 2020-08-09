@@ -14,13 +14,13 @@ from spotify_utils import search_spotify, formatted_playlist, pretty_playlist
 
 # Load environment variables
 load_dotenv()
-API_TOKEN = getenv('API_TOKEN')
-MY_CHATID = getenv('MY_CHATID')
-ACCESS_TOKEN = getenv('ACCESS_TOKEN')
 LOGGING_PATH = getenv('LOGGING_PATH', 'logs')
 LOGGING_FILE = getenv('LOGGING_FILE')
-YOUR_API_KEY = getenv('YOUR_API_KEY')
-WHITELISTED_CHATIDS = list(map(int, getenv('WHITELISTED_CHATIDS').split(',')))
+API_TOKEN = getenv('API_TOKEN')  # Telegram
+MY_CHATID = getenv('MY_CHATID')  # Telegram
+ACCESS_TOKEN = getenv('ACCESS_TOKEN')  # Twitter
+YOUR_API_KEY = getenv('YOUR_API_KEY')  # Youtube
+WHITELISTED_CHATIDS = list(map(int, getenv('WHITELISTED_CHATIDS').split(',')))  # Telegram
 
 # Configure logging
 if LOGGING_FILE:
