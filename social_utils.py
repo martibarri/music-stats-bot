@@ -27,11 +27,6 @@ def get_followers_instagram(account_name):
             followers = int(float(followers[:-1].encode('UTF-8')) * 1000)
         else:
             followers = int(float(followers.encode('UTF-8')))
-        following = text[2]
-        if following[-1] == 'K':
-            following = int(float(following[:-1].encode('UTF-8')) * 1000)
-        else:
-            following = int(float(following.encode('UTF-8')))
         return followers
     except Exception:
         return None
