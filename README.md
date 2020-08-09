@@ -15,7 +15,13 @@ Telegram bot of my music group
 
         pip install -r requirements.txt
 
-4. Run project
+4. Edit accounts name in `main.py`
+
+    _sinergiareggae_ is just my music group
+
+    `SOCIAL_UPDATE_TIME` can also be changed
+
+5. Run project
 
         python main.py
 
