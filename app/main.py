@@ -159,7 +159,8 @@ async def search_playlist(message: types.Message, allowed):
 
 @dp.message_handler(commands=['random'])
 @dp.message_handler(regexp='(random|frase|phrase|lletra|letra|lyric|aleatori)')
-async def random_song_phrase(message: types.Message):
+@restricted
+async def random_song_phrase(message: types.Message, allowed):
     """
     Get all songs from 'lyrics' folder, choose a random one,
     extract the lyrics, parse it and return a random phrase.
