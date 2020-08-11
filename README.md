@@ -46,3 +46,6 @@ if bot can read all messages with the assigned option `/setprivacy` of @BotFathe
 
 Usage: `/playlist KEYWORDS`
 
+## Random Song Phrase
+
+Function that choose a random phrase of the available songs of the `lyrics` folder.

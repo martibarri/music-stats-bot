@@ -2,12 +2,13 @@ import logging
 import requests
 import urllib
 
-from os import getenv
+from os import getenv, path, listdir
+from secrets import choice
 from datetime import datetime, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.utils.markdown import hbold
+from aiogram.utils.markdown import hbold, hitalic
 from social_utils import get_followers_twitter, get_followers_instagram, get_followers_facebook, get_followers_spotify, get_followers_youtube
 from spotify_utils import search_spotify, formatted_playlist, pretty_playlist
 
@@ -154,6 +155,30 @@ async def search_playlist(message: types.Message, allowed):
     else:
         logging.warning('NOT ALLOWED')
         send_message(f'NOT ALLOWED: {message}')
+
+
+@dp.message_handler(commands=['random'])
+@dp.message_handler(regexp='(random|frase|phrase|lletra|letra|lyric|aleatori)')
+async def random_song_phrase(message: types.Message, allowed):
+    """
+    Get all songs from 'lyrics' folder, choose a random one,
+    extract the lyrics, parse it and return a random phrase.
+    """
+    all_songs = listdir(path.join(path.dirname(path.abspath(__file__)), 'lyrics'))
+    random_song = choice(all_songs)
+
+    with open(path.join(path.dirname(path.abspath(__file__)), 'lyrics', random_song), 'r') as f:
+        phrases = f.readlines()
+    phrases = list(set(phrases))  # delete duplicated lines
+    phrases = [x for x in phrases if x and x != '\n']  # delete empty lines
+
+    random_phrase = choice(phrases)
+    random_phrase = random_phrase[:-1]  # delete last \n
+    random_phrase = random_phrase[:-1] if random_phrase[-1] in [',', ':', ';'] else random_phrase
+
+    msg = f"{random_phrase} \n🎵 {hitalic(accounts['music_group_name'] + ' - ' + random_song)} 🎵"
+    logging.info(msg)
+    await message.answer(msg, parse_mode='html')
 
 
 if __name__ == '__main__':
