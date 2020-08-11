@@ -1,3 +1,7 @@
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/martibarri/music-stats-bot.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/martibarri/music-stats-bot/alerts/)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/martibarri/music-stats-bot.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/martibarri/music-stats-bot/context:python)
+[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
+ 
 # music-stats-bot
 Telegram bot of my music group
 
