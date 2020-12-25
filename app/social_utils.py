@@ -19,7 +19,8 @@ def get_followers_twitter(ACCESS_TOKEN, account_name):
 
 def get_followers_instagram(account_name):
     try:
-        html = requests.get(f'https://www.instagram.com/{account_name}/')
+        headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36"}
+        html = requests.get(f'https://www.instagram.com/{account_name}/', headers=headers)
         soup = BeautifulSoup(html.text, 'html.parser')
         data = soup.find_all('meta', attrs={'property': 'og:description'})
         text = data[0].get('content').split()
