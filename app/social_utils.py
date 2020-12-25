@@ -1,5 +1,6 @@
 import requests
 import json
+import logging
 
 from bs4 import BeautifulSoup
 
@@ -11,7 +12,8 @@ def get_followers_twitter(ACCESS_TOKEN, account_name):
         resp_json = json.loads(resp.text)
         followers = resp_json['followers_count']
         return followers
-    except Exception:
+    except Exception as e:
+        logging.exception(e)
         return None
 
 
@@ -28,7 +30,8 @@ def get_followers_instagram(account_name):
         else:
             followers = int(float(followers.encode('UTF-8')))
         return followers
-    except Exception:
+    except Exception as e:
+        logging.exception(e)
         return None
 
 
@@ -40,7 +43,8 @@ def get_followers_facebook(account_name):
         text = data[0].get('content').split()
         followers = text[2]
         return followers
-    except Exception:
+    except Exception as e:
+        logging.exception(e)
         return None
 
 
@@ -52,7 +56,8 @@ def get_followers_spotify(artist_id):
         followers = data[0].getText()
         # new_followers = data[1].getText()
         return followers
-    except Exception:
+    except Exception as e:
+        logging.exception(e)
         return None
 
 
@@ -63,5 +68,6 @@ def get_followers_youtube(YOUR_API_KEY, channel_id):
         resp_json = json.loads(response.text)
         subscribers = resp_json['items'][0]['statistics']['subscriberCount']
         return subscribers
-    except Exception:
+    except Exception as e:
+        logging.exception(e)
         return None
