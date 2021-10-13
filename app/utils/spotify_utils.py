@@ -13,7 +13,12 @@ def formatted_playlist(playlist):
 
 
 def pretty_playlist(f):
-    pretty = f"{hbold('Followers')}: {f[0]}\n{hbold('Tracks')}: {f[1]}\n{hbold('Name')}: {f[2]}\n{hbold('Owner')}: {f[3]}\n{f[4]}"
+    pretty = \
+        f"{hbold('Followers')}: {f[0]}\n" \
+        f"{hbold('Tracks')}: {f[1]}\n" \
+        f"{hbold('Name')}: {f[2]}\n" \
+        f"{hbold('Owner')}: {f[3]}\n" \
+        f"{f[4]}"
     return pretty
 
 
