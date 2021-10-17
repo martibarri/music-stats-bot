@@ -38,7 +38,7 @@ Telegram bot of my music group
 
 ## Restricted usage notification
 
-`CHATID` is the my personal Telegram chat ID, and is where security messages will be sent.
+`MY_CHATID` is the my personal Telegram chat ID, and is where security messages will be sent.
 
 ## Print social networks stats
 
