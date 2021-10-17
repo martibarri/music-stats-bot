@@ -13,9 +13,12 @@ def restricted(func):
             return func(f, True)
         else:
             return func(f, False)
+
     return func_wrapper
 
 
 def send_message(msg, api_token, my_chatid):
     parsedmsg = urllib.parse.quote_plus(msg)
-    requests.get(f"https://api.telegram.org/bot{api_token}/sendMessage?chat_id={my_chatid}&text={parsedmsg}")
+    requests.get(
+        f"https://api.telegram.org/bot{api_token}/sendMessage?chat_id={my_chatid}&text={parsedmsg}"
+    )

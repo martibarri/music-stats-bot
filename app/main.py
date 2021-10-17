@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from os import listdir, path
 from pathlib import Path
 from secrets import choice
 
@@ -9,29 +8,17 @@ from aiogram.utils.markdown import hbold, hitalic
 
 from config import Settings
 from utils.bot_utils import restricted, send_message
-from utils.social_utils import (get_followers_facebook,
-                                get_followers_instagram, get_followers_spotify,
-                                get_followers_twitter, get_followers_youtube)
-from utils.spotify_utils import (formatted_playlist, pretty_playlist,
-                                 search_spotify)
-from utils.sqlite_utils import *
+from utils.db_utils import db_init, db_social_insert, db_social_read_last
+from utils.social_utils import print_social, social_query
+from utils.spotify_utils import formatted_playlist, pretty_playlist, search_spotify
 
 # Configure logging
-if Settings.LOGGING_FILE:
-    Path(Settings.LOGGING_PATH).mkdir(parents=True, exist_ok=True)
-    logging.basicConfig(
-        level=logging.INFO,
-        filename=Path(Settings.LOGGING_PATH) / Path(Settings.LOGGING_FILE),
-        filemode="a",
-        format="%(asctime)s.%(msecs)03d\t%(levelname)s\t%(name)s\t%(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-else:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s.%(msecs)03d\t%(levelname)s\t%(name)s\t%(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
+logging.basicConfig(
+    level=logging.INFO,
+    filename=Settings.FILEPATH_LOG,
+    format="%(asctime)s.%(msecs)03d\t%(levelname)s\t%(name)s\t%(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 
 # Initialize bot and dispatcher
@@ -43,24 +30,25 @@ dp = Dispatcher(bot)
 @restricted
 async def info_xxss(message: types.Message, allowed):
     if allowed:
-        now = datetime.utcnow()
-        # First scan or rescan + update values
-        if (not Settings.MY_DB["last_date"]) or (now > Settings.MY_DB["last_date"] + timedelta(hours=Settings.SOCIAL_UPDATE_TIME)):
-            # first scan
-            Settings.MY_DB["facebook"] = get_followers_facebook(Settings.accounts["facebook"])
-            Settings.MY_DB["instagram"] = get_followers_instagram(Settings.accounts["instagram"])
-            Settings.MY_DB["twitter"] = get_followers_twitter(Settings.ACCESS_TOKEN, Settings.accounts["twitter"])
-            Settings.MY_DB["spotify"] = get_followers_spotify(Settings.accounts["spotify"])
-            Settings.MY_DB["youtube"] = get_followers_youtube(Settings.YOUR_API_KEY, Settings.accounts["youtube"])
-            Settings.MY_DB["last_date"] = now
-        # Print message
-        msg = f"🕸 {hbold(Settings.accounts['music_group_name'] + ' stats')} 🕸"
-        msg += f"\nFacebook: {hbold(Settings.MY_DB['facebook'])}" if Settings.MY_DB["facebook"] else ""
-        msg += f"\nInstagram: {hbold(Settings.MY_DB['instagram'])}" if Settings.MY_DB["instagram"] else ""
-        msg += f"\nTwitter: {hbold(Settings.MY_DB['twitter'])}" if Settings.MY_DB["twitter"] else ""
-        msg += f"\nSpotify: {hbold(Settings.MY_DB['spotify'])}" if Settings.MY_DB["spotify"] else ""
-        msg += f"\nYoutube: {hbold(Settings.MY_DB['youtube'])}" if Settings.MY_DB["youtube"] else ""
-        msg += f"\nUpdated: {Settings.MY_DB['last_date'].strftime('%Y-%m-%d %H:%M:%S')}" if Settings.MY_DB["last_date"] else ""
+        now = datetime.now()
+        last_row = db_social_read_last()
+        try:
+            if now > last_row.dt + timedelta(hours=Settings.SOCIAL_UPDATE_TIME):
+                logging.info("Update values...")
+                update = True
+            else:
+                logging.info(
+                    f"Cached values ({(now - last_row.dt).seconds}/{int(Settings.SOCIAL_UPDATE_TIME*3600)} seconds)"
+                )
+                update = False
+        except TypeError:
+            logging.warning("First scan")
+            update = True
+        if update:
+            new_data = social_query()
+            db_social_insert(*new_data)
+            last_row = db_social_read_last()
+        msg = print_social(last_row)
         logging.info(msg)
         await message.answer(msg, parse_mode="html")
     else:
@@ -100,7 +88,9 @@ async def search_playlist(message: types.Message, allowed):
                 f = formatted_playlist(p)
                 logging.info(f)
                 p = pretty_playlist(f)
-                await message.answer(p, parse_mode="html", disable_web_page_preview=True)
+                await message.answer(
+                    p, parse_mode="html", disable_web_page_preview=True
+                )
                 pretty_playlists.append(p)
 
         search_result = f"{len(pretty_playlists)} relevant results of {len(playlists)} response results"
@@ -119,17 +109,20 @@ async def random_song_phrase(message: types.Message, allowed):
     Get all songs from "lyrics" folder, choose a random one,
     extract the lyrics, parse it and return a random phrase.
     """
-    all_songs = listdir(path.join(path.dirname(path.abspath(__file__)), "lyrics"))
+    path_lyrics = Settings.base_dir / "app" / "lyrics"
+    all_songs = list(map(lambda x: x.name, path_lyrics.iterdir()))
     random_song = choice(all_songs)
 
-    with open(path.join(path.dirname(path.abspath(__file__)), "lyrics", random_song), "r") as f:
+    with open(path_lyrics / random_song, "r") as f:
         phrases = f.readlines()
     phrases = list(set(phrases))  # delete duplicated lines
     phrases = [x for x in phrases if x and x != "\n"]  # delete empty lines
 
     random_phrase = choice(phrases)
     random_phrase = random_phrase[:-1]  # delete last \n
-    random_phrase = random_phrase[:-1] if random_phrase[-1] in [",", ":", ";"] else random_phrase
+    random_phrase = (
+        random_phrase[:-1] if random_phrase[-1] in [",", ":", ";"] else random_phrase
+    )
 
     msg = f"{random_phrase} \n🎵 {hitalic(Settings.accounts['music_group_name'] + ' - ' + random_song)} 🎵"
     logging.info(msg)
@@ -137,4 +130,5 @@ async def random_song_phrase(message: types.Message, allowed):
 
 
 if __name__ == "__main__":
+    db_init()
     executor.start_polling(dp, skip_updates=False)
