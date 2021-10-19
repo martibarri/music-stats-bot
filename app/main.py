@@ -1,10 +1,9 @@
 import logging
 from datetime import datetime, timedelta
-from pathlib import Path
 from secrets import choice
 
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.utils.markdown import hbold, hitalic
+from aiogram.utils.markdown import hitalic
 
 from config import Settings
 from utils.bot_utils import restricted, send_message
