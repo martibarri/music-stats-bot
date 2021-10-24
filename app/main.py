@@ -27,7 +27,7 @@ dp = Dispatcher(bot)
 
 @dp.message_handler(regexp="(xarx|social|xs|seguidor|follow|subscri|informaci|stats)")
 @restricted
-async def info_xxss(message: types.Message, allowed):
+async def info_xxss(message: types.Message, allowed: bool):
     if allowed:
         now = datetime.now()
         last_row = db_social_read_last()
@@ -57,7 +57,7 @@ async def info_xxss(message: types.Message, allowed):
 
 @dp.message_handler(commands=["playlist"])
 @restricted
-async def search_playlist(message: types.Message, allowed):
+async def search_playlist(message: types.Message, allowed: bool):
     """
     This handler will be called when user sends `/playlist` command
     """
@@ -103,29 +103,33 @@ async def search_playlist(message: types.Message, allowed):
 @dp.message_handler(commands=["random"])
 @dp.message_handler(regexp="(random|frase|phrase|lletra|letra|lyric|aleatori)")
 @restricted
-async def random_song_phrase(message: types.Message, allowed):
+async def random_song_phrase(message: types.Message, allowed: bool):
     """
     Get all songs from "lyrics" folder, choose a random one,
     extract the lyrics, parse it and return a random phrase.
     """
-    path_lyrics = Settings.base_dir / "app" / "lyrics"
-    all_songs = list(map(lambda x: x.name, path_lyrics.iterdir()))
-    random_song = choice(all_songs)
+    if allowed:
+        path_lyrics = Settings.base_dir / "app" / "lyrics"
+        all_songs = list(map(lambda x: x.name, path_lyrics.iterdir()))
+        random_song = choice(all_songs)
 
-    with open(path_lyrics / random_song, "r") as f:
-        phrases = f.readlines()
-    phrases = list(set(phrases))  # delete duplicated lines
-    phrases = [x for x in phrases if x and x != "\n"]  # delete empty lines
+        with open(path_lyrics / random_song, "r") as f:
+            phrases = f.readlines()
+        phrases = list(set(phrases))  # delete duplicated lines
+        phrases = [x for x in phrases if x and x != "\n"]  # delete empty lines
 
-    random_phrase = choice(phrases)
-    random_phrase = random_phrase[:-1]  # delete last \n
-    random_phrase = (
-        random_phrase[:-1] if random_phrase[-1] in [",", ":", ";"] else random_phrase
-    )
+        random_phrase = choice(phrases)
+        random_phrase = random_phrase[:-1]  # delete last \n
+        random_phrase = (
+            random_phrase[:-1] if random_phrase[-1] in [",", ":", ";"] else random_phrase
+        )
 
-    msg = f"{random_phrase} \n🎵 {hitalic(Settings.accounts['music_group_name'] + ' - ' + random_song)} 🎵"
-    logging.info(msg)
-    await message.answer(msg, parse_mode="html")
+        msg = f"{random_phrase} \n🎵 {hitalic(Settings.accounts['music_group_name'] + ' - ' + random_song)} 🎵"
+        logging.info(msg)
+        await message.answer(msg, parse_mode="html")
+    else:
+        logging.warning("NOT ALLOWED")
+        send_message(f"NOT ALLOWED: {message}", Settings.API_TOKEN, Settings.MY_CHATID)
 
 
 if __name__ == "__main__":
