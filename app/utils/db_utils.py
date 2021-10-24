@@ -3,32 +3,7 @@ import sqlite3
 from datetime import datetime
 
 from config import Settings
-
-
-class SocialRow:
-    def __init__(self, row: tuple) -> None:
-        try:
-            self.id = row[0]
-            self.dt = datetime.strptime(row[1], "%Y%m%d_%H%M%S")
-            self.fb = row[2]
-            self.ig = row[3]
-            self.tw = row[4]
-            self.sp = row[5]
-            self.yt = row[6]
-        except Exception:
-            self.id = None
-            self.dt = None
-            self.fb = None
-            self.ig = None
-            self.tw = None
-            self.sp = None
-            self.yt = None
-
-    def __repr__(self):
-        return f"<SocialRow {dict(self.__dict__.items())}>"
-
-    def __str__(self):
-        return f"<SocialRow {dict(self.__dict__.items())}>"
+from utils.models import SocialRow, UserRow
 
 
 def db_init():
@@ -51,8 +26,68 @@ def db_init():
         logging.info("CREATE TABLE social")
     except sqlite3.OperationalError:
         logging.info("table 'social' already exists")
+    try:
+        cur.execute(
+            """
+            CREATE TABLE users (
+                id INTEGER PRIMARY KEY,
+                telegram_id INTEGER,
+                username TEXT,
+                first_name TEXT,
+                last_name TEXT
+            )
+            """
+        )
+        logging.info("CREATE TABLE users")
+    except sqlite3.OperationalError:
+        logging.info("table 'users' already exists")
     con.commit()
     con.close()
+
+
+def db_users_insert(telegram_id: int, username: str = None, first_name: str = None, last_name: str = None):
+    con = sqlite3.connect(Settings.FILEPATH_DB)
+    cur = con.cursor()
+    cur.execute(
+        f"""
+        INSERT INTO users (telegram_id,username,first_name,last_name)
+        VALUES (?, ?, ?, ?)
+        """,
+        (telegram_id, username, first_name, last_name),
+    )
+    logging.info(f"INSERT ({telegram_id},{username},{first_name},{last_name})")
+    con.commit()
+    con.close()
+
+
+def db_users_get_by_id(telegram_id: int):
+    logging.info(f"SELECT {telegram_id}")
+    con = sqlite3.connect(Settings.FILEPATH_DB)
+    cur = con.cursor()
+    row = cur.execute("SELECT * FROM users WHERE telegram_id = ?", (telegram_id,)).fetchone()
+    con.close()
+    try:
+        user_row = UserRow(row)
+        logging.info(user_row)
+    except Exception():
+        logging.warning("User not found")
+        user_row = None
+    return user_row
+
+
+def db_users_get_all():
+    logging.info(f"SELECT all users")
+    con = sqlite3.connect(Settings.FILEPATH_DB)
+    cur = con.cursor()
+    rows = cur.execute("SELECT * FROM users").fetchall()
+    con.close()
+    try:
+        users = list(map(lambda x: UserRow(x), rows))
+    except Exception:
+        logging.exception("db_users_get_all")
+        users = []
+    logging.info(users)
+    return users
 
 
 def db_social_insert(fb: int, ig: int, tw: int, sp: int, yt: int):

@@ -6,8 +6,20 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.utils.markdown import hitalic
 
 from config import Settings
-from utils.bot_utils import restricted, send_message
-from utils.db_utils import db_init, db_social_insert, db_social_read_last
+from utils.bot_utils import (
+    restricted,
+    restricted_group,
+    restricted_admin,
+    send_admin_message,
+)
+from utils.db_utils import (
+    db_init,
+    db_social_insert,
+    db_social_read_last,
+    db_users_get_by_id,
+    db_users_insert,
+    db_users_get_all,
+)
 from utils.social_utils import print_social, social_query
 from utils.spotify_utils import formatted_playlist, pretty_playlist, search_spotify
 
@@ -52,7 +64,7 @@ async def info_xxss(message: types.Message, allowed: bool):
         await message.answer(msg, parse_mode="html")
     else:
         logging.warning("NOT ALLOWED")
-        send_message(f"NOT ALLOWED: {message}", Settings.API_TOKEN, Settings.MY_CHATID)
+        send_admin_message(f"NOT ALLOWED: {message}")
 
 
 @dp.message_handler(commands=["playlist"])
@@ -87,9 +99,7 @@ async def search_playlist(message: types.Message, allowed: bool):
                 f = formatted_playlist(p)
                 logging.info(f)
                 p = pretty_playlist(f)
-                await message.answer(
-                    p, parse_mode="html", disable_web_page_preview=True
-                )
+                await message.answer(p, parse_mode="html", disable_web_page_preview=True)
                 pretty_playlists.append(p)
 
         search_result = f"{len(pretty_playlists)} relevant results of {len(playlists)} response results"
@@ -97,7 +107,7 @@ async def search_playlist(message: types.Message, allowed: bool):
         await message.answer(search_result)
     else:
         logging.warning("NOT ALLOWED")
-        send_message(f"NOT ALLOWED: {message}", Settings.API_TOKEN, Settings.MY_CHATID)
+        send_admin_message(f"NOT ALLOWED: {message}")
 
 
 @dp.message_handler(commands=["random"])
@@ -120,16 +130,72 @@ async def random_song_phrase(message: types.Message, allowed: bool):
 
         random_phrase = choice(phrases)
         random_phrase = random_phrase[:-1]  # delete last \n
-        random_phrase = (
-            random_phrase[:-1] if random_phrase[-1] in [",", ":", ";"] else random_phrase
-        )
+        random_phrase = random_phrase[:-1] if random_phrase[-1] in [",", ":", ";"] else random_phrase
 
         msg = f"{random_phrase} \n🎵 {hitalic(Settings.accounts['music_group_name'] + ' - ' + random_song)} 🎵"
         logging.info(msg)
         await message.answer(msg, parse_mode="html")
     else:
         logging.warning("NOT ALLOWED")
-        send_message(f"NOT ALLOWED: {message}", Settings.API_TOKEN, Settings.MY_CHATID)
+        send_admin_message(f"NOT ALLOWED: {message}")
+
+
+@dp.message_handler(commands=["register"])
+@restricted_group
+async def user_register(message: types.Message, allowed: bool):
+    if allowed:
+        if not message.from_user.is_bot:
+            user = db_users_get_by_id(message.from_user.id)
+            if user:
+                await message.answer("User already registered")
+            else:
+                # register user
+                db_users_insert(
+                    telegram_id=message.from_user.id,
+                    username=message.from_user.username,
+                    first_name=message.from_user.first_name,
+                    last_name=message.from_user.last_name,
+                )
+                user = db_users_get_by_id(message.from_user.id)
+                if user:
+                    await message.answer("User successfully registered")
+                else:
+                    await message.answer(f"Some error registering user {message.from_user}")
+    else:
+        logging.warning("NOT ALLOWED")
+        send_admin_message(f"NOT ALLOWED: {message}")
+
+
+@dp.message_handler(commands=["users"])
+@restricted_admin
+async def list_users(message: types.Message, allowed: bool):
+    if allowed:
+        users = db_users_get_all()
+        await message.answer(users)
+    else:
+        logging.warning("NOT ALLOWED")
+        send_admin_message(f"NOT ALLOWED: {message}")
+
+
+@dp.message_handler(commands=["msg"])
+@restricted
+async def replay_msg(message: types.Message, allowed: bool):
+    if allowed:
+        await message.answer(message)
+    else:
+        logging.warning("NOT ALLOWED")
+        send_admin_message(f"NOT ALLOWED: {message}")
+
+
+@dp.message_handler(commands=["info_chat"])
+@restricted
+async def get_info_chat(message: types.Message, allowed: bool):
+    if allowed:
+        await message.answer("chat info sent!")
+        send_admin_message(f"get_info_chat: {message.chat}")
+    else:
+        logging.warning("NOT ALLOWED")
+        send_admin_message(f"NOT ALLOWED: {message}")
 
 
 if __name__ == "__main__":

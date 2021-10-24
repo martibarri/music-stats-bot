@@ -6,7 +6,7 @@ from aiogram.utils.markdown import hbold
 from bs4 import BeautifulSoup
 
 from config import Settings
-from utils.db_utils import SocialRow
+from utils.models import SocialRow
 
 
 def get_followers_twitter(ACCESS_TOKEN, account_name):

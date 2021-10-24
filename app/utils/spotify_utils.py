@@ -43,8 +43,5 @@ def search_spotify(search_type, query, limit_search, market):
             playlists.append(playlist)
 
         # Sort playlists by followers
-        playlists = sorted(
-            playlists, key=lambda x: x["followers"]["total"], reverse=True
-        )
-
+        playlists = sorted(playlists, key=lambda x: x["followers"]["total"], reverse=True)
         return playlists

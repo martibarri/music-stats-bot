@@ -26,7 +26,8 @@ class Settings:
 
     # Telegram
     API_TOKEN = getenv("API_TOKEN")
-    MY_CHATID = getenv("MY_CHATID")
+    MY_CHATID = int(getenv("MY_CHATID"))
+    GROUP_CHATID = int(getenv("GROUP_CHATID"))
     try:
         ALLOW_LIST_CHATIDS = list(map(int, getenv("ALLOW_LIST_CHATIDS").split(",")))
     except Exception:
