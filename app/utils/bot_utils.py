@@ -3,6 +3,7 @@ import urllib
 
 import requests
 from config import Settings
+from utils.db_utils import db_users_get_all
 
 
 def restricted(func):
@@ -23,6 +24,16 @@ def restricted_group(func):
             and f.chat.id == Settings.GROUP_CHATID
             and not f.from_user.is_bot
         )
+        return func(f, decision)
+
+    return func_wrapper
+
+
+def restricted_member(func):
+    def func_wrapper(f):
+        logging.info(f)
+        users_id = list(map(lambda u: u.telegram_id, db_users_get_all()))
+        decision = f.from_user.id in users_id
         return func(f, decision)
 
     return func_wrapper
