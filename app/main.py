@@ -5,21 +5,10 @@ from secrets import choice
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.utils.markdown import hitalic
 
+import crud
 from config import Settings
-from utils.bot_utils import (
-    restricted,
-    restricted_group,
-    restricted_admin,
-    send_admin_message,
-)
-from utils.db_utils import (
-    db_init,
-    db_social_insert,
-    db_social_read_last,
-    db_users_get_by_id,
-    db_users_insert,
-    db_users_get_all,
-)
+from db import create_db_and_tables
+from utils.bot_utils import restricted, restricted_admin, restricted_group, send_admin_message
 from utils.social_utils import print_social, social_query
 from utils.spotify_utils import formatted_playlist, pretty_playlist, search_spotify
 
@@ -42,23 +31,24 @@ dp = Dispatcher(bot)
 async def info_xxss(message: types.Message, allowed: bool):
     if allowed:
         now = datetime.now()
-        last_row = db_social_read_last()
+        last_row = crud.get_last_social()
         try:
-            if now > last_row.dt + timedelta(hours=Settings.SOCIAL_UPDATE_TIME):
+            last_scan = datetime.strptime(last_row.dt, "%Y%m%d_%H%M%S")
+            if now > last_scan + timedelta(hours=Settings.SOCIAL_UPDATE_TIME):
                 logging.info("Update values...")
                 update = True
             else:
                 logging.info(
-                    f"Cached values ({(now - last_row.dt).seconds}/{int(Settings.SOCIAL_UPDATE_TIME*3600)} seconds)"
+                    f"Cached values ({(now - last_scan).seconds}/{int(Settings.SOCIAL_UPDATE_TIME*3600)} seconds)"
                 )
                 update = False
-        except TypeError:
+        except (TypeError, AttributeError):
             logging.warning("First scan")
             update = True
         if update:
             new_data = social_query()
-            db_social_insert(*new_data)
-            last_row = db_social_read_last()
+            crud.create_social(*new_data)
+            last_row = crud.get_last_social()
         msg = print_social(last_row)
         logging.info(msg)
         await message.answer(msg, parse_mode="html")
@@ -145,18 +135,18 @@ async def random_song_phrase(message: types.Message, allowed: bool):
 async def user_register(message: types.Message, allowed: bool):
     if allowed:
         if not message.from_user.is_bot:
-            user = db_users_get_by_id(message.from_user.id)
+            user = crud.get_user(message.from_user.id)
             if user:
                 await message.answer("User already registered")
             else:
                 # register user
-                db_users_insert(
+                crud.create_user(
                     telegram_id=message.from_user.id,
                     username=message.from_user.username,
                     first_name=message.from_user.first_name,
                     last_name=message.from_user.last_name,
                 )
-                user = db_users_get_by_id(message.from_user.id)
+                user = crud.get_user(message.from_user.id)
                 if user:
                     await message.answer("User successfully registered")
                 else:
@@ -170,7 +160,7 @@ async def user_register(message: types.Message, allowed: bool):
 @restricted_admin
 async def list_users(message: types.Message, allowed: bool):
     if allowed:
-        users = db_users_get_all()
+        users = crud.get_all_users()
         await message.answer(users)
     else:
         logging.warning("NOT ALLOWED")
@@ -199,5 +189,5 @@ async def get_info_chat(message: types.Message, allowed: bool):
 
 
 if __name__ == "__main__":
-    db_init()
+    create_db_and_tables()
     executor.start_polling(dp, skip_updates=False)

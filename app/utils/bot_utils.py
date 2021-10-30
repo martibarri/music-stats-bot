@@ -2,8 +2,9 @@ import logging
 import urllib
 
 import requests
+
+import crud
 from config import Settings
-from utils.db_utils import db_users_get_all
 
 
 def restricted(func):
@@ -32,7 +33,7 @@ def restricted_group(func):
 def restricted_member(func):
     def func_wrapper(f):
         logging.info(f)
-        users_id = list(map(lambda u: u.telegram_id, db_users_get_all()))
+        users_id = list(map(lambda u: u.telegram_id, crud.get_all_users()))
         decision = f.from_user.id in users_id
         return func(f, decision)
 

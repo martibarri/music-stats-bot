@@ -1,12 +1,12 @@
 import json
 import logging
+from datetime import datetime
 
 import requests
 from aiogram.utils.markdown import hbold
 from bs4 import BeautifulSoup
-
 from config import Settings
-from utils.models import SocialRow
+from models import Social
 
 
 def get_followers_twitter(ACCESS_TOKEN, account_name):
@@ -16,7 +16,7 @@ def get_followers_twitter(ACCESS_TOKEN, account_name):
         resp = requests.get(url, headers=headers)
         resp_json = json.loads(resp.text)
         followers = resp_json["followers_count"]
-        return followers
+        return int(followers)
     except Exception:
         logging.exception("Error getting twitter followers")
         return None
@@ -34,7 +34,7 @@ def get_followers_instagram(account_name):
             followers = int(float(followers[:-1].encode("UTF-8")) * 1000)
         else:
             followers = int(float(followers.encode("UTF-8")))
-        return followers
+        return int(followers)
     except Exception:
         logging.exception("Error getting instagram followers")
         return None
@@ -47,7 +47,7 @@ def get_followers_facebook(account_name):
         data = soup.find_all("meta", attrs={"name": "description"})
         text = data[0].get("content").split()
         followers = text[2]
-        return followers
+        return int(followers)
     except Exception:
         logging.exception("Error getting facebook followers")
         return None
@@ -61,7 +61,7 @@ def get_followers_spotify(artist_id):
         data = soup.find_all("div", attrs={"class": "count-num"})
         followers = data[0].getText()
         # new_followers = data[1].getText()
-        return followers
+        return int(followers)
     except Exception:
         logging.exception("Error getting spotify followers")
         return None
@@ -73,7 +73,7 @@ def get_followers_youtube(YOUR_API_KEY, channel_id):
         response = requests.get(url)
         resp_json = json.loads(response.text)
         subscribers = resp_json["items"][0]["statistics"]["subscriberCount"]
-        return subscribers
+        return int(subscribers)
     except Exception:
         logging.exception("Error getting youtube followers")
         return None
@@ -88,7 +88,7 @@ def social_query() -> tuple:
     return (fb, ig, tw, sp, yt)
 
 
-def print_social(row: SocialRow) -> str:
+def print_social(row: Social) -> str:
     # Print message
     msg = f"🕸 {hbold(Settings.accounts['music_group_name'] + ' stats')} 🕸"
     msg += f"\nFacebook: {hbold(row.fb)}" if row.fb else ""
@@ -96,5 +96,5 @@ def print_social(row: SocialRow) -> str:
     msg += f"\nTwitter: {hbold(row.tw)}" if row.tw else ""
     msg += f"\nSpotify: {hbold(row.sp)}" if row.sp else ""
     msg += f"\nYoutube: {hbold(row.yt)}" if row.yt else ""
-    msg += f"\nUpdated: {row.dt.strftime('%Y-%m-%d %H:%M:%S')}" if row.dt else ""
+    msg += f"\nUpdated: {datetime.strptime(row.dt, '%Y%m%d_%H%M%S').strftime('%Y-%m-%d %H:%M:%S')}" if row.dt else ""
     return msg
