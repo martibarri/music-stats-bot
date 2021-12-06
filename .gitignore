@@ -140,3 +140,4 @@ cython_debug/
 info.md
 *.db
 .vscode
+data/*
