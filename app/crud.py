@@ -26,7 +26,7 @@ def create_social(fb: int, ig: int, tw: int, sp: int, yt: int):
 
 
 def create_user(telegram_id: int, username: str = None, first_name: str = None, last_name: str = None):
-    logging.info(f"INSERT (telegram_id,{username},{first_name},{last_name})")
+    logging.info(f"INSERT ({telegram_id},{username},{first_name},{last_name})")
     user_row = User(telegram_id=telegram_id, username=username, first_name=first_name, last_name=last_name)
     with Session(engine) as session:
         session.add(user_row)

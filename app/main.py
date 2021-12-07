@@ -74,7 +74,7 @@ async def search_playlist(message: types.Message, allowed: bool):
         ##########################
         query += " NOT reggaeton"
         limit_search = 20
-        minim_followers = 200
+        minim_followers = 100
         search_type = "playlist"
         market = "ES"
         ##########################
