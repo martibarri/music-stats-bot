@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 
 import requests
+import spotipy
 from aiogram.utils.markdown import hbold
 from bs4 import BeautifulSoup
 from config import Settings
@@ -55,12 +56,11 @@ def get_followers_facebook(account_name):
 
 def get_followers_spotify(artist_id):
     try:
-        url = f"https://open.spotify.com/follow/1?uri=spotify:artist:{artist_id}&show-count=1"
-        html = requests.get(url)
-        soup = BeautifulSoup(html.text, "html.parser")
-        data = soup.find_all("div", attrs={"class": "count-num"})
-        followers = data[0].getText()
-        # new_followers = data[1].getText()
+        client_credentials_manager = spotipy.oauth2.SpotifyClientCredentials()
+        sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+        urn = f"spotify:artist:{artist_id}"
+        artist = sp.artist(urn)
+        followers = artist.get("followers", {}).get("total")
         return int(followers)
     except Exception:
         logging.exception("Error getting spotify followers")

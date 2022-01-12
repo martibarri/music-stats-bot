@@ -6,11 +6,11 @@ from sqlmodel import Field, SQLModel
 class Social(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     dt: str
-    fb: int
-    ig: int
-    tw: int
-    sp: int
-    yt: int
+    fb: Optional[int] = 0
+    ig: Optional[int] = 0
+    tw: Optional[int] = 0
+    sp: Optional[int] = 0
+    yt: Optional[int] = 0
 
 
 class User(SQLModel, table=True):

@@ -66,7 +66,7 @@ async def search_playlist(message: types.Message, allowed: bool):
     if allowed:
         arguments = message.get_args()
         if arguments:
-            query = arguments
+            query = str(arguments)
         else:
             await message.answer("usage: /playlist TEXT TO SEARCH")
             return
