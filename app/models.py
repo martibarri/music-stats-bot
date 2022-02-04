@@ -3,6 +3,16 @@ from typing import Optional
 from sqlmodel import Field, SQLModel
 
 
+class SocialMap:
+    map = {
+        "fb": "Facebook",
+        "ig": "Instagram",
+        "tw": "Twitter",
+        "sp": "Spotify",
+        "yt": "Youtube",
+    }
+
+
 class Social(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     dt: str

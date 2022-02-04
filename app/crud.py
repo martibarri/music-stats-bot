@@ -16,6 +16,14 @@ def get_last_social() -> Social:
     return result
 
 
+def get_previous_social() -> Social:
+    with Session(engine) as session:
+        statement = select(Social).order_by(Social.id.desc()).offset(1).limit(1)
+        result = session.exec(statement).one_or_none()
+    logging.info(f"SELECT previous social row: {result}")
+    return result
+
+
 def create_social(fb: int, ig: int, tw: int, sp: int, yt: int):
     dt_now = datetime.now().strftime("%Y%m%d_%H%M%S")
     logging.info(f"INSERT social row ({dt_now},{fb},{ig},{tw},{sp},{yt})")

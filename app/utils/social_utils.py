@@ -7,7 +7,7 @@ import spotipy
 from aiogram.utils.markdown import hbold
 from bs4 import BeautifulSoup
 from config import Settings
-from models import Social
+from models import Social, SocialMap
 
 
 def get_followers_twitter(ACCESS_TOKEN, account_name):
@@ -88,13 +88,43 @@ def social_query() -> tuple:
     return (fb, ig, tw, sp, yt)
 
 
-def print_social(row: Social) -> str:
+def social_diff(a, b):
+    try:
+        diff = int(b) - int(a)
+        if diff != 0:
+            return f"({diff:+})"
+        else:
+            return
+    except Exception:
+        return
+
+
+def build_social_msg(slug, row: dict, prow: dict):
+    msg = ""
+    name = SocialMap.map.get(slug)
+    if name:
+        row_value = row.get(slug)
+        prow_value = prow.get(slug)
+        if row_value:
+            msg += f"\n{name}: {hbold(row_value)}"
+            diff = social_diff(prow_value, row_value)
+            if diff:
+                msg += f" {diff}"
+    return msg
+
+
+def print_social(row: Social, prow: Social) -> str:
     # Print message
     msg = f"🕸 {hbold(Settings.accounts['music_group_name'] + ' stats')} 🕸"
-    msg += f"\nFacebook: {hbold(row.fb)}" if row.fb else ""
-    msg += f"\nInstagram: {hbold(row.ig)}" if row.ig else ""
-    msg += f"\nTwitter: {hbold(row.tw)}" if row.tw else ""
-    msg += f"\nSpotify: {hbold(row.sp)}" if row.sp else ""
-    msg += f"\nYoutube: {hbold(row.yt)}" if row.yt else ""
+    try:
+        row_dict = row.dict()
+    except Exception:
+        row_dict = {}
+    try:
+        prow_dict = prow.dict()
+    except Exception:
+        prow_dict = {}
+    for i, _ in row:
+        msg += build_social_msg(i, row_dict, prow_dict)
     msg += f"\nUpdated: {datetime.strptime(row.dt, '%Y%m%d_%H%M%S').strftime('%Y-%m-%d %H:%M:%S')}" if row.dt else ""
     return msg

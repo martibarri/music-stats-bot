@@ -49,7 +49,8 @@ async def info_xxss(message: types.Message, allowed: bool):
             new_data = social_query()
             crud.create_social(*new_data)
             last_row = crud.get_last_social()
-        msg = print_social(last_row)
+        previous_row = crud.get_previous_social()
+        msg = print_social(last_row, previous_row)
         logging.info(msg)
         await message.answer(msg, parse_mode="html")
     else:
