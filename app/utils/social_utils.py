@@ -4,7 +4,7 @@ from datetime import datetime
 
 import requests
 import spotipy
-from aiogram.utils.markdown import hbold
+from aiogram.utils.markdown import hbold, hitalic
 from bs4 import BeautifulSoup
 from config import Settings
 from models import Social, SocialMap
@@ -126,5 +126,12 @@ def print_social(row: Social, prow: Social) -> str:
         prow_dict = {}
     for i, _ in row:
         msg += build_social_msg(i, row_dict, prow_dict)
-    msg += f"\nUpdated: {datetime.strptime(row.dt, '%Y%m%d_%H%M%S').strftime('%Y-%m-%d %H:%M:%S')}" if row.dt else ""
+    msg += (
+        f"\nActualitzat: {datetime.strptime(row.dt, '%Y%m%d_%H%M%S').strftime('%Y-%m-%d %H:%M:%S')}" if row.dt else ""
+    )
+    try:
+        last_updated = datetime.strptime(row.dt, "%Y%m%d_%H%M%S") - datetime.strptime(prow.dt, "%Y%m%d_%H%M%S")
+    except Exception:
+        last_updated = None
+    msg += f"\n{hitalic(f'Última actualització fa {last_updated}')}" if last_updated else ""
     return msg
